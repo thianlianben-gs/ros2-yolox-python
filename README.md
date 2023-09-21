@@ -77,7 +77,7 @@ cd ros_ws
 source /opt/ros/foxy/setup.bash
 colcon build --symlink-install
 
-source ~/ros2_ws/install/setup.bash
+source ~/ros_ws/install/setup.bash
 ros2 launch yolox_ros_py demo_yolox_s.launch.py
 ```
 
