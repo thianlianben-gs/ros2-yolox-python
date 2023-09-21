@@ -78,7 +78,7 @@ source /opt/ros/foxy/setup.bash
 colcon build --symlink-install
 
 source ~/ros_ws/install/setup.bash
-ros2 launch yolox_ros_py demo_yolox_s.launch.py
+ros2 launch yolox_ros_py yolox_nano_torch_gpu_camera.launch.py
 ```
 
 
