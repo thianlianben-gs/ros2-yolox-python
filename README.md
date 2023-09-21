@@ -71,7 +71,7 @@ Run it again
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 ```
 
-- Step 5 Excution of Yolox ros launch file
+- Step 5 Open new terminal
 ```bash
 cd ros_ws
 source /opt/ros/foxy/setup.bash
