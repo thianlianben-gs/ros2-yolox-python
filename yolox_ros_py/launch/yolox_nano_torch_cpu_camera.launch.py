@@ -9,40 +9,40 @@ import os
 def generate_launch_description():
     yolox_ros_share_dir = get_package_share_directory('yolox_ros_py')
 
-    # video_device = LaunchConfiguration('video_device', default='/dev/video0')
-    # video_device_arg = DeclareLaunchArgument(
-    #     'video_device',
-    #     default_value='/dev/video0',
-    #     description='Video device'
-    # )
-
-    # webcam = launch_ros.actions.Node(
-    #     package="v4l2_camera", executable="v4l2_camera_node",
-    #     parameters=[
-    #         {"image_size": [640,480]},
-    #         {"video_device": video_device},
-    #     ],
-    # )
-
-    dog_path = os.path.join(yolox_ros_share_dir, "./", "dog.jpg")
-    url = "https://raw.githubusercontent.com/pjreddie/darknet/master/data/dog.jpg"
-    if not os.path.exists(dog_path):
-        os.system("wget {} -O {}".format(url, dog_path))
-
-
-    image_path = LaunchConfiguration('image_path', default=dog_path)
-    image_path_arg = DeclareLaunchArgument(
-        'image_path',
-        default_value=dog_path,
-        description='Image path'
+    video_device = LaunchConfiguration('video_device', default='/dev/video0')
+    video_device_arg = DeclareLaunchArgument(
+        'video_device',
+        default_value='/dev/video0',
+        description='Video device'
     )
 
-    image_pub = launch_ros.actions.Node(
-        package='image_publisher',
-        executable='image_publisher_node',
-        name='image_publisher',
-        arguments=[image_path],
+    webcam = launch_ros.actions.Node(
+        package="v4l2_camera", executable="v4l2_camera_node",
+        parameters=[
+            {"image_size": [640,480]},
+            {"video_device": video_device},
+        ],
     )
+
+    # dog_path = os.path.join(yolox_ros_share_dir, "./", "dog.jpg")
+    # url = "https://raw.githubusercontent.com/pjreddie/darknet/master/data/dog.jpg"
+    # if not os.path.exists(dog_path):
+    #     os.system("wget {} -O {}".format(url, dog_path))
+
+
+    # image_path = LaunchConfiguration('image_path', default=dog_path)
+    # image_path_arg = DeclareLaunchArgument(
+    #     'image_path',
+    #     default_value=dog_path,
+    #     description='Image path'
+    # )
+
+    # image_pub = launch_ros.actions.Node(
+    #     package='image_publisher',
+    #     executable='image_publisher_node',
+    #     name='image_publisher',
+    #     arguments=[image_path],
+    # )
 
     yolox_ros = launch_ros.actions.Node(
         package="yolox_ros_py", executable="yolox_ros",
@@ -65,10 +65,10 @@ def generate_launch_description():
     )
 
     return launch.LaunchDescription([
-        # video_device_arg,
-        # webcam,
-        image_path_arg,
-        image_pub,
+        video_device_arg,
+        webcam,
+        # image_path_arg,
+        # image_pub,
         yolox_ros,
         # rqt_graph
     ])
