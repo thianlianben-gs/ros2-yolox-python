@@ -1,4 +1,4 @@
-# ros2-yolox-python
+# ROS2 + YOLOX + Python
 
 In this project, I am going to use ROS2 foxy and the OS is ubunutu 20.04.
 So you can read and follow each step on this doc https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html
