@@ -1,15 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-# Copyright (c) Megvii, Inc. and its affiliates.
-
-# ROS2 rclpy -- Ar-Ray-code 2021
-
 import os
 import time
+import sys
 from loguru import logger
 
 import cv2
 from numpy import empty
+import numpy as np
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -24,9 +20,9 @@ from .yolox_ros_py_utils.utils import yolox_py
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import Header
+from std_msgs.msg import Header, String
 from cv_bridge import CvBridge
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CompressedImage
 
 from rclpy.qos import qos_profile_sensor_data
 
@@ -127,7 +123,10 @@ class yolox_ros(yolox_py):
         self.bridge = CvBridge()
         
         self.pub = self.create_publisher(BoundingBoxes,"bounding_boxes", 10)
-        
+        self.end_sub = self.create_subscription(String, "end_system",self.end_system_callback, 10)
+
+        self.pub_image = self.create_publisher(CompressedImage, "image_publisher", 10)
+
         if (self.sensor_qos_mode):
             self.sub = self.create_subscription(Image,"image_raw",self.imageflow_callback, qos_profile_sensor_data)
         else:
@@ -234,6 +233,16 @@ class yolox_ros(yolox_py):
         
         self.predictor = Predictor(model, exp, COCO_CLASSES, trt_file, decoder, device, fp16, legacy)
 
+    def end_system_callback(self, msg:String) -> None:
+        try:
+            self.get_logger().info("Shutting down ROS node due to a condition.")
+            self.destroy_node()  # Trigger node shutdown
+            rclpy.shutdown() 
+            sys.exit(0)
+        except Exception as e:
+            self.get_logger().info(f'Error: {e}')
+            pass
+
     def imageflow_callback(self,msg:Image) -> None:
         try:
             img_rgb = self.bridge.imgmsg_to_cv2(msg,"bgr8")
@@ -241,6 +250,13 @@ class yolox_ros(yolox_py):
 
             try:
                 result_img_rgb, bboxes, scores, cls, cls_names = self.predictor.visual(outputs[0], img_info)
+
+                msg = CompressedImage()
+                msg.header.stamp = rclpy.time.Time(seconds=0, nanoseconds=0).to_msg()
+                msg.format = "jpeg"
+                msg.data = np.array(cv2.imencode('.jpg', result_img_rgb)[1]).tostring()
+                self.pub_image.publish(msg)
+
                 bboxes_msg = self.yolox2bboxes_msgs(bboxes, scores, cls, cls_names, msg.header, img_rgb)
 
                 self.pub.publish(bboxes_msg)
